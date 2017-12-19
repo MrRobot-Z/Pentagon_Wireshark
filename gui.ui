@@ -96,7 +96,11 @@
        </widget>
       </item>
       <item>
-       <widget class="QTreeWidget" name="DetailView"/>
+       <widget class="QTreeWidget" name="DetailView">
+        <property name="columnCount">
+         <number>0</number>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QTextEdit" name="HexView">
@@ -152,5 +156,22 @@
   </action>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>452</x>
+     <y>51</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>727</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

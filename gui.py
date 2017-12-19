@@ -43,6 +43,7 @@ class Ui_MainWindow(object):
         self.ListView.setObjectName("ListView")
         self.verticalLayout.addWidget(self.ListView)
         self.DetailView = QtWidgets.QTreeWidget(self.centralwidget)
+        self.DetailView.setColumnCount(1)
         self.DetailView.setObjectName("DetailView")
         self.verticalLayout.addWidget(self.DetailView)
         self.HexView = QtWidgets.QTextEdit(self.centralwidget)
@@ -73,6 +74,7 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
+        self.pushButton.clicked.connect(MainWindow.close)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -93,14 +95,3 @@ class Ui_MainWindow(object):
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
         self.actionNew.setText(_translate("MainWindow", "New"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
-    sys.exit(app.exec_())
-
