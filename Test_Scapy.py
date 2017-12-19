@@ -1,9 +1,12 @@
-import scapy.all as scpy
-import scapy_http.http
+from scapy.all import *
+from scapy_http import http
 
 
-packets = scpy.rdpcap("example_network_traffic.pcap")
+# packets = rdpcap("example_network_traffic.pcap")
+
+packets = sniff(filter="tcp port 80", timeout=10)
+
+# packets.summary()
 
 for one in packets:
-    print("*"*100)
     one.show()
