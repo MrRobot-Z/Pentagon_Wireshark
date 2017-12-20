@@ -13,10 +13,10 @@ class PSniffer:
         self.all_summary_packets = []
         self.all_hex_packets = []
         self.packet_id = 0
-        self.s_timeout = 0
+        self.s_timeout = 20
         self.s_count = 0
         self.filter = None
-        self.s_stop = True
+        self.s_stop = False
 
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count,
@@ -50,8 +50,8 @@ class PSniffer:
         hx = "\n".join(hx)
         self.all_hex_packets.append(hx)
 
-        # print("*"*70 + str(self.packet_id) + "*"*70)
-        # print(self.all_summary_packets[-1])
+        print("*"*70 + str(self.packet_id) + "*"*70)
+        print(self.all_summary_packets[-1])
 
         self.packet_id += 1
 
@@ -92,6 +92,7 @@ class PSniffer:
         summery_dict["Time"] = t
         summery_dict["Length"] = len(pkt)
         s = pkt.summary()
+        print(s)
         summery_dict["Info"] = s
         s = s.split()
         index = s.index(">")
@@ -111,6 +112,6 @@ if __name__ == "__main__":
     try:
         pws.read_pcap_file()
         # pws.start_sniffing()
-        # pws.write_into_pcap()
+        pws.write_into_pcap()
     except ValueError:
-        pass
+        print("Hello from exception")
