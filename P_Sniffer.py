@@ -1,5 +1,7 @@
 import Wireshark_utils as WsU
 import scapy.all as spy
+import time
+import datetime
 # from threading import Timer
 print("Scapy is Imported")
 
@@ -9,6 +11,8 @@ class PSniffer:
     def __init__(self):
         self.all_sniffed_packets = []
         self.all_detailed_packets = []
+        self.all_summary_packets = []
+        self.packet_id = 0
         self.s_timeout = 0
         self.s_count = 0
         self.filter = None
@@ -26,6 +30,7 @@ class PSniffer:
 
     def process_packet(self, sniffed_pkt):
         self.all_sniffed_packets.append(sniffed_pkt)
+        self.parse_summary(sniffed_pkt)
 
         layers_lst = []
         for x in range(5):
@@ -41,8 +46,9 @@ class PSniffer:
 
         self.all_detailed_packets.append(pkt_details)
 
-        s = sniffed_pkt.summary()
-        print(s.upper())
+        print(self.all_summary_packets)
+
+        self.packet_id += 1
 
     def read_pcap_file(self, file_path="example_network_traffic.pcap"):
         packets = spy.rdpcap(file_path)
@@ -62,9 +68,7 @@ class PSniffer:
             layer_list[i] = (s[0], s[1])
         return layer_list
 
-    @staticmethod
-    def parse_http(raw_tcp):
-        print("hello")
+    def parse_http(self, raw_tcp):
         fields = raw_tcp[1].split("=", 1)[1].split("\\r\\n\\r\\n", 1)
         load = ""
         if len(fields) == 2:
@@ -73,7 +77,26 @@ class PSniffer:
         out = [("HTTP", x) for x in http]
         out.append(("Load", load))
         out.insert(0, "###[ HTTP ]###")
+        self.all_summary_packets[self.packet_id]["Protocol"] = "HTTP"
         return out
+
+    def parse_summary(self, pkt):
+        summery_dict = {}
+        t = datetime.datetime.now().strftime("%H:%M:%S.%f")
+        summery_dict["ID"] = self.packet_id
+        summery_dict["Time"] = t
+        summery_dict["Length"] = len(pkt)
+        s = pkt.summary()
+        summery_dict["Info"] = s
+        s = s.split()
+        index = s.index(">")
+        summery_dict["Source"] = s[index - 1]
+        summery_dict["Destination"] = s[index - 2]
+        summery_dict["Protocol"] = s[index - 2]
+        self.all_summary_packets.append(summery_dict)
+
+    def write_into_pcap(self, file_path_name="test.pcap"):
+        spy.wrpcap(file_path_name, self.all_sniffed_packets)
 
 
 if __name__ == "__main__":
@@ -82,5 +105,6 @@ if __name__ == "__main__":
     # t.start()
     try:
         pws.read_pcap_file()
+        pws.write_into_pcap()
     except ValueError:
         pass
