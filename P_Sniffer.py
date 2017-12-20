@@ -1,6 +1,5 @@
 import Wireshark_utils as WsU
 import scapy.all as spy
-import time
 import datetime
 # from threading import Timer
 print("Scapy is Imported")
@@ -12,11 +11,12 @@ class PSniffer:
         self.all_sniffed_packets = []
         self.all_detailed_packets = []
         self.all_summary_packets = []
+        self.all_hex_packets = []
         self.packet_id = 0
         self.s_timeout = 0
         self.s_count = 0
         self.filter = None
-        self.s_stop = False
+        self.s_stop = True
 
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count,
@@ -46,7 +46,12 @@ class PSniffer:
 
         self.all_detailed_packets.append(pkt_details)
 
-        print(self.all_summary_packets)
+        hx = WsU.get_hex_data(sniffed_pkt, spy.hexdump)
+        hx = "\n".join(hx)
+        self.all_hex_packets.append(hx)
+
+        # print("*"*70 + str(self.packet_id) + "*"*70)
+        # print(self.all_summary_packets[-1])
 
         self.packet_id += 1
 
@@ -91,7 +96,7 @@ class PSniffer:
         s = s.split()
         index = s.index(">")
         summery_dict["Source"] = s[index - 1]
-        summery_dict["Destination"] = s[index - 2]
+        summery_dict["Destination"] = s[index - 1]
         summery_dict["Protocol"] = s[index - 2]
         self.all_summary_packets.append(summery_dict)
 
@@ -105,6 +110,7 @@ if __name__ == "__main__":
     # t.start()
     try:
         pws.read_pcap_file()
-        pws.write_into_pcap()
+        # pws.start_sniffing()
+        # pws.write_into_pcap()
     except ValueError:
         pass
