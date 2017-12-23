@@ -1,11 +1,13 @@
 import Wireshark_utils as WsU
 import scapy.all as spy
 import datetime
+from PyQt5.QtCore import *
+
 # from threading import Timer
 print("Scapy is Imported")
 
 
-class PSniffer:
+class PSniffer(QObject):
 
     def __init__(self):
         self.all_sniffed_packets = []
@@ -13,14 +15,16 @@ class PSniffer:
         self.all_summary_packets = []
         self.all_hex_packets = []
         self.packet_id = 0
-        self.s_timeout = 20
+        self.s_timeout = 0
         self.s_count = 0
         self.filter = None
         self.s_stop = False
+        self.packet_received = pyqtSignal(list, list, list)
 
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count,
                   filter=self.filter, stop_callback=self.should_stop)
+        self.packet_received.emit(self.all_sniffed_packets, self.all_detailed_packets, self.all_summary_packets)
 
     def should_stop(self):
         return self.s_stop

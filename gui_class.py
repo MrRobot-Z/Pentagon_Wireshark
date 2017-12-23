@@ -61,6 +61,9 @@ class GUI(object):
     def start_sniff(self):
         temp.view_packet(("0.00000", "192.168.1.1", "192.168.1.3", "TCP", "54", "nmdfhdbfms"))
 
+    def receive_packets(self, sniffed_packets, detailed_packets, summary_packets):
+        self.view_packet(sniffed_packets[1])
+
 
 if __name__ == "__main__":
     temp = GUI()
