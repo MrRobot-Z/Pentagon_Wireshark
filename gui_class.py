@@ -36,7 +36,7 @@ class GUI(object):
 
         self.sniffer = PSniffer()
         self.sniffer.packet_received.connect(self.view_packet)
-        self.ui.start.clicked.connect(self.sniffer.start_sniffing)
+        self.ui.start.clicked.connect(self.start_sniff)
 
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
@@ -71,11 +71,10 @@ class GUI(object):
             self.ip_details.setText(0, "Detail for Packet No. " + str(packet_no))
             self.tcp_details.setText(0, "Detail for Packet No. " + str(packet_no))
             self.http_details.setText(0, "Detail for Packet No. " + str(packet_no))
-            self.ui.HexView.setText(0, self.packets_hex[packet_no])
+            self.ui.HexView.setText(self.packets_hex[int(packet_no)])
 
     def start_sniff(self):
-        #temp.view_packet(("0.00000", "192.168.1.1", "192.168.1.3", "TCP", "54", "nmdfhdbfms"))
-        pass
+        self.sniffer.read_pcap_file(file_path="example_network_traffic.pcap")
 
     def receive_packets(self, sniffed_packets, detailed_packets, summary_packets):
         self.view_packet(sniffed_packets[1])

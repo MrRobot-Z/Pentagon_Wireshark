@@ -62,7 +62,7 @@ class PSniffer(QObject):
         self.packet_received.emit(self.all_summary_packets[-1], self.all_detailed_packets[-1], self.all_hex_packets[-1])
         print("ana 2t3t l packet aho")
 
-    def read_pcap_file(self, file_path="test.pcap"):
+    def read_pcap_file(self, file_path="example_network_traffic.pcap"):
         packets = spy.rdpcap(file_path)
         print("Ana b read aho")
         for one in packets:
