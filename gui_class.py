@@ -9,7 +9,7 @@ class GUI(object):
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
 
-        self.ethernet_view = QtWidgets.QTreeWidgetItem(self.ui.DetailView)
+        '''self.ethernet_view = QtWidgets.QTreeWidgetItem(self.ui.DetailView)
         self.ethernet_view.setText(0, "Ethernet")
         self.ethernet_details = QtWidgets.QTreeWidgetItem(self.ethernet_view)
 
@@ -27,7 +27,7 @@ class GUI(object):
         self.http_view.setHidden(True)
         self.ethernet_view.setHidden(True)
         self.ip_view.setHidden(True)
-        self.tcp_view.setHidden(True)
+        self.tcp_view.setHidden(True)'''
         self.ui.actionExit.triggered.connect(self.MainWindow.close)
 
         self.packets_details = []
@@ -36,18 +36,18 @@ class GUI(object):
 
         self.sniffer = PSniffer()
         self.sniffer.packet_received.connect(self.view_packet)
-        self.ui.start.clicked.connect(self.start_sniff)
+        self.ui.start.clicked.connect(self.sniffer.read_pcap_file)
 
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
 
-    ''' Packet form for the GUI is tuple(time, Source, Destination, Length, Info.) '''
+
     def view_packet(self, packet_summary, packet_detail, packet_hex):
-        if packet_summary['ID'] == 0:
+        '''if packet_summary['ID'] == 0:
             self.http_view.setHidden(False)
             self.ethernet_view.setHidden(False)
             self.ip_view.setHidden(False)
-            self.tcp_view.setHidden(False)
+            self.tcp_view.setHidden(False)'''
 
         new_packet = QtWidgets.QTreeWidgetItem(self.ui.ListView)
         new_packet.setText(0, str(packet_summary['ID']))
@@ -60,6 +60,7 @@ class GUI(object):
 
         self.packets_summary.append(packet_summary)
         self.packets_details.append(packet_detail)
+        print(packet_detail[0])
         self.packets_hex.append(packet_hex)
         #TODO view packet 1
 
@@ -67,10 +68,14 @@ class GUI(object):
         s = self.ui.ListView.selectedItems()
         if s:
             packet_no = s[0].text(0)
-            self.ethernet_details.setText(0, "Detail for Packet No. " + str(packet_no))
-            self.ip_details.setText(0, "Detail for Packet No. " + str(packet_no))
-            self.tcp_details.setText(0, "Detail for Packet No. " + str(packet_no))
-            self.http_details.setText(0, "Detail for Packet No. " + str(packet_no))
+            self.ui.DetailView.clear()
+            packet_details = self.packets_details[int(packet_no)]
+            for protocol in packet_details:
+                tmp = QtWidgets.QTreeWidgetItem(self.ui.DetailView)
+                tmp.setText(0, protocol[0])
+                for i in range(1, len(protocol[1:])):
+                    tmp2 = QtWidgets.QTreeWidgetItem(tmp)
+                    tmp2.setText(0, protocol[i][0] + " : " + protocol[i][1])
             self.ui.HexView.setText(self.packets_hex[int(packet_no)])
 
     def start_sniff(self):
