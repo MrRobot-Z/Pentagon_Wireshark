@@ -2,6 +2,7 @@ import sys
 from gui import *
 from P_Sniffer import *
 
+
 class GUI(object):
     def __init__(self):
         self.app = QtWidgets.QApplication(sys.argv)
@@ -41,7 +42,6 @@ class GUI(object):
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
 
-
     def view_packet(self, packet_summary, packet_detail, packet_hex):
         '''if packet_summary['ID'] == 0:
             self.http_view.setHidden(False)
@@ -60,9 +60,7 @@ class GUI(object):
 
         self.packets_summary.append(packet_summary)
         self.packets_details.append(packet_detail)
-        print(packet_detail[0])
         self.packets_hex.append(packet_hex)
-        #TODO view packet 1
 
     def view_packet_details(self):
         s = self.ui.ListView.selectedItems()
@@ -72,11 +70,31 @@ class GUI(object):
             packet_details = self.packets_details[int(packet_no)]
             for protocol in packet_details:
                 tmp = QtWidgets.QTreeWidgetItem(self.ui.DetailView)
-                tmp.setText(0, protocol[0])
+                tmp.setText(0, self.header_rename(protocol[0]))
                 for i in range(1, len(protocol[1:])):
                     tmp2 = QtWidgets.QTreeWidgetItem(tmp)
                     tmp2.setText(0, protocol[i][0] + " : " + protocol[i][1])
             self.ui.HexView.setText(self.packets_hex[int(packet_no)])
+
+    def header_rename(self, header):
+        header = header.replace(']', '')
+        header = header.replace('[', '')
+        header = header.replace('###', '')
+        header = header.replace(' ', '')
+        if header == 'Ethernet':
+            return "Ethernet"
+        elif header == 'IP':
+            return "Internet Protocol Version 4"
+        elif header == 'TCP':
+            return 'Transmission Control Protocol'
+        elif header == 'UDP':
+            return 'User datagram Protocol'
+        elif header == 'DNS':
+            return 'Domain Name Server'
+        elif header == 'Raw':
+            return 'Hypertext Transfer Protocol'
+        else:
+            return header
 
     def start_sniff(self):
         self.sniffer.read_pcap_file(file_path="example_network_traffic.pcap")
