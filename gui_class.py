@@ -9,7 +9,8 @@ class GUI(object):
         self.MainWindow = QtWidgets.QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
-
+        self.ui.ListView.horizontalScrollBar().setValue(self.ui.ListView.verticalScrollBar().minimum())
+        #self.scroll_area = QtWidgets.QScrollArea(self.ui.ListView)
         '''self.ethernet_view = QtWidgets.QTreeWidgetItem(self.ui.DetailView)
         self.ethernet_view.setText(0, "Ethernet")
         self.ethernet_details = QtWidgets.QTreeWidgetItem(self.ethernet_view)
@@ -30,6 +31,7 @@ class GUI(object):
         self.ip_view.setHidden(True)
         self.tcp_view.setHidden(True)'''
         self.ui.actionExit.triggered.connect(self.MainWindow.close)
+        self.ui.actionNew.triggered.connect(self.select_file)
 
         self.packets_details = []
         self.packets_summary = []
@@ -38,7 +40,7 @@ class GUI(object):
         self.sniffer = PSniffer()
         self.sniffer.packet_received.connect(self.view_packet)
         self.ui.start.clicked.connect(self.sniffer.read_pcap_file)
-
+        self.ui.pushButton_3.clicked.connect(self.filter)
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
 
@@ -61,6 +63,9 @@ class GUI(object):
         self.packets_summary.append(packet_summary)
         self.packets_details.append(packet_detail)
         self.packets_hex.append(packet_hex)
+        if packet_summary['ID'] == 0:
+            self.ui.ListView.setCurrentItem(new_packet)
+            self.view_packet_details()
 
     def view_packet_details(self):
         s = self.ui.ListView.selectedItems()
@@ -102,6 +107,16 @@ class GUI(object):
     def receive_packets(self, sniffed_packets, detailed_packets, summary_packets):
         self.view_packet(sniffed_packets[1])
 
+    def filter(self):
+        self.sniffer.filter = self.ui.Filter.text()
+
+    def select_file(self):
+        dlg = QtWidgets.QFileDialog()
+        dlg.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        #dlg.setFilter("Wireshark capture file (*.pcap)")
+        if dlg.exec_():
+            filename = dlg.selectedFiles()
+            self.sniffer.read_pcap_file(file_path=filename[0])
 
 if __name__ == "__main__":
     temp = GUI()
