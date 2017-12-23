@@ -1,4 +1,4 @@
-import sys
+'''import sys
 from gui_class import GUI
 from P_Sniffer import PSniffer
 from PyQt5.QtCore import *
@@ -11,3 +11,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+'''

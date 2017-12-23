@@ -1,14 +1,14 @@
 import Wireshark_utils as WsU
 import scapy.all as spy
 import datetime
-from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
+from PyQt5.QtCore import QObject, pyqtSignal
 
 # from threading import Timer
 print("Scapy is Imported")
 
 
 class PSniffer(QObject):
-    packet_received = pyqtSignal(list, list, list)
+    packet_received = pyqtSignal(dict, list, str)
 
     def __init__(self):
         QObject.__init__(self)
@@ -21,10 +21,6 @@ class PSniffer(QObject):
         self.s_count = 0
         self.filter = None
         self.s_stop = False
-
-
-    def pritay7aga(self):
-        print("ay 7aga")
 
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count,
@@ -62,12 +58,15 @@ class PSniffer(QObject):
         print(self.all_summary_packets[-1])
 
         self.packet_id += 1
-        self.packet_received.emit(self.all_sniffed_packets, self.all_detailed_packets, self.all_summary_packets)
+        self.packet_received.emit(self.all_summary_packets[-1], self.all_detailed_packets[-1], self.all_hex_packets[-1])
+        print("ana 2t3t l packet aho")
 
     def read_pcap_file(self, file_path="example_network_traffic.pcap"):
         packets = spy.rdpcap(file_path)
+        print("Ana b read aho")
         for one in packets:
             self.process_packet(one)
+        print("ana 5lst read aho")
 
     def analyze_layer(self, layer_list):
         if layer_list[0] == "###[ Raw ]###":
