@@ -17,14 +17,13 @@ class PSniffer(QObject):
         self.all_summary_packets = []
         self.all_hex_packets = []
         self.packet_id = 0
-        self.s_timeout = 0
+        self.s_timeout = 3
         self.s_count = 0
         self.filter = None
         self.s_stop = False
 
     def start_sniffing(self):
-        spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count,
-                  filter=self.filter, stop_callback=self.should_stop)
+        spy.sniff(prn=self.process_packet, timeout=self.s_timeout)
 
     def should_stop(self):
         return self.s_stop
@@ -33,6 +32,7 @@ class PSniffer(QObject):
         self.s_stop = True
 
     def process_packet(self, sniffed_pkt):
+        print("dafhsgbjdfb")
         self.all_sniffed_packets.append(sniffed_pkt)
         self.parse_summary(sniffed_pkt)
 
@@ -58,10 +58,11 @@ class PSniffer(QObject):
         print(self.all_summary_packets[-1])
 
         self.packet_id += 1
+        print("ana 2t3t l packet aho")
         self.packet_received.emit(self.all_summary_packets[-1], self.all_detailed_packets[-1], self.all_hex_packets[-1])
         print("ana 2t3t l packet aho")
 
-    def read_pcap_file(self, file_path="example_network_traffic.pcap"):
+    def read_pcap_file(self, file_path="test.pcap"):
         packets = spy.rdpcap(file_path)
         print("Ana b read aho")
         for one in packets:
@@ -113,7 +114,7 @@ class PSniffer(QObject):
         spy.wrpcap(file_path_name, self.all_sniffed_packets)
 
 
-if __name__ == "__main__":
+'''if __name__ == "__main__":
     pws = PSniffer()
     # t = Timer(10, pws.stop_sniffing)
     # t.start()
@@ -122,4 +123,4 @@ if __name__ == "__main__":
         # pws.start_sniffing()
         pws.write_into_pcap()
     except ValueError:
-        print("Hello from exception")
+        print("Hello from exception")'''

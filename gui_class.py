@@ -36,7 +36,7 @@ class GUI(object):
 
         self.sniffer = PSniffer()
         self.sniffer.packet_received.connect(self.view_packet)
-        self.ui.start.clicked.connect(self.sniffer.read_pcap_file)
+        self.ui.start.clicked.connect(self.sniffer.start_sniffing)
 
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
@@ -50,13 +50,13 @@ class GUI(object):
             self.tcp_view.setHidden(False)
 
         new_packet = QtWidgets.QTreeWidgetItem(self.ui.ListView)
-        new_packet.setText(0, packet_summary['ID'])
-        new_packet.setText(1, packet_summary['Time'])
-        new_packet.setText(2, packet_summary['Source'])
-        new_packet.setText(3, packet_summary['Destination'])
-        new_packet.setText(4, packet_summary['Protocol'])
-        new_packet.setText(5, packet_summary['Length'])
-        new_packet.setText(6, packet_summary['Info'])
+        new_packet.setText(0, str(packet_summary['ID']))
+        new_packet.setText(1, str(packet_summary['Time']))
+        new_packet.setText(2, str(packet_summary['Source']))
+        new_packet.setText(3, str(packet_summary['Destination']))
+        new_packet.setText(4, str(packet_summary['Protocol']))
+        new_packet.setText(5, str(packet_summary['Length']))
+        new_packet.setText(6, str(packet_summary['Info']))
 
         self.packets_summary.append(packet_summary)
         self.packets_details.append(packet_detail)
@@ -71,7 +71,7 @@ class GUI(object):
             self.ip_details.setText(0, "Detail for Packet No. " + str(packet_no))
             self.tcp_details.setText(0, "Detail for Packet No. " + str(packet_no))
             self.http_details.setText(0, "Detail for Packet No. " + str(packet_no))
-            self.ui.HexView.setText(self.packets_hex[packet_no])
+            self.ui.HexView.setText(0, self.packets_hex[packet_no])
 
     def start_sniff(self):
         #temp.view_packet(("0.00000", "192.168.1.1", "192.168.1.3", "TCP", "54", "nmdfhdbfms"))
