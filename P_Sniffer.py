@@ -1,15 +1,17 @@
 import Wireshark_utils as WsU
 import scapy.all as spy
 import datetime
-from PyQt5.QtCore import *
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 # from threading import Timer
 print("Scapy is Imported")
 
 
 class PSniffer(QObject):
+    packet_received = pyqtSignal(list, list, list)
 
     def __init__(self):
+        QObject.__init__(self)
         self.all_sniffed_packets = []
         self.all_detailed_packets = []
         self.all_summary_packets = []
@@ -19,12 +21,14 @@ class PSniffer(QObject):
         self.s_count = 0
         self.filter = None
         self.s_stop = False
-        self.packet_received = pyqtSignal(list, list, list)
+
+
+    def pritay7aga(self):
+        print("ay 7aga")
 
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count,
                   filter=self.filter, stop_callback=self.should_stop)
-        self.packet_received.emit(self.all_sniffed_packets, self.all_detailed_packets, self.all_summary_packets)
 
     def should_stop(self):
         return self.s_stop
@@ -58,6 +62,7 @@ class PSniffer(QObject):
         print(self.all_summary_packets[-1])
 
         self.packet_id += 1
+        self.packet_received.emit(self.all_sniffed_packets, self.all_detailed_packets, self.all_summary_packets)
 
     def read_pcap_file(self, file_path="example_network_traffic.pcap"):
         packets = spy.rdpcap(file_path)

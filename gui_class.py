@@ -28,6 +28,8 @@ class GUI(object):
         self.ethernet_view.setHidden(True)
         self.ip_view.setHidden(True)
         self.tcp_view.setHidden(True)
+        self.ui.actionExit.triggered.connect(self.MainWindow.close)
+
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.ui.start.clicked.connect(self.start_sniff)
         self.MainWindow.show()
