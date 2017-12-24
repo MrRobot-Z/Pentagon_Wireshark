@@ -32,6 +32,7 @@ class GUI(object):
         self.ip_view.setHidden(True)
         self.tcp_view.setHidden(True)'''
 
+        self.ui.DetailView.setColumnCount(1)
         # self.ui.actionExit.triggered.connect(self.MainWindow.close)
         self.ui.actionOpen.triggered.connect(self.select_file)
         self.ui.actionSave.triggered.connect(self.save_file)

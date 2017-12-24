@@ -103,8 +103,7 @@ class PSniffer(QObject):
         summary_dict["ID"] = self.packet_id
         summary_dict["Time"] = t
         summary_dict["Length"] = len(pkt)
-        s = pkt.summary()
-        summary_dict["Info"] = s
+        summary_dict["Info"] = pkt.summary()
         source = ""
         destination = ""
 
