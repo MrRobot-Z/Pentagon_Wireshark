@@ -5,12 +5,13 @@ from P_Sniffer import *
 
 class GUI(object):
     def __init__(self):
+        super().__init__()
         self.app = QtWidgets.QApplication(sys.argv)
         self.MainWindow = QtWidgets.QMainWindow()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self.MainWindow)
         self.ui.ListView.horizontalScrollBar().setValue(self.ui.ListView.verticalScrollBar().minimum())
-        #self.scroll_area = QtWidgets.QScrollArea(self.ui.ListView)
+        # self.scroll_area = QtWidgets.QScrollArea(self.ui.ListView)
         '''self.ethernet_view = QtWidgets.QTreeWidgetItem(self.ui.DetailView)
         self.ethernet_view.setText(0, "Ethernet")
         self.ethernet_details = QtWidgets.QTreeWidgetItem(self.ethernet_view)
@@ -30,8 +31,10 @@ class GUI(object):
         self.ethernet_view.setHidden(True)
         self.ip_view.setHidden(True)
         self.tcp_view.setHidden(True)'''
-        self.ui.actionExit.triggered.connect(self.MainWindow.close)
-        self.ui.actionNew.triggered.connect(self.select_file)
+
+        # self.ui.actionExit.triggered.connect(self.MainWindow.close)
+        self.ui.actionOpen.triggered.connect(self.select_file)
+        self.ui.actionSave.triggered.connect(self.save_file)
 
         self.packets_details = []
         self.packets_summary = []
@@ -39,8 +42,8 @@ class GUI(object):
 
         self.sniffer = PSniffer()
         self.sniffer.packet_received.connect(self.view_packet)
-        self.ui.start.clicked.connect(self.sniffer.read_pcap_file)
-        self.ui.pushButton_3.clicked.connect(self.filter)
+        self.ui.start_btn.clicked.connect(self.sniffer.start_sniffing)
+        self.ui.filter_btn.clicked.connect(self.filter)
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
 
@@ -111,12 +114,16 @@ class GUI(object):
         self.sniffer.filter = self.ui.Filter.text()
 
     def select_file(self):
-        dlg = QtWidgets.QFileDialog()
-        dlg.setFileMode(QtWidgets.QFileDialog.AnyFile)
-        #dlg.setFilter("Wireshark capture file (*.pcap)")
-        if dlg.exec_():
-            filename = dlg.selectedFiles()
-            self.sniffer.read_pcap_file(file_path=filename[0])
+        file_name = QtWidgets.QFileDialog.getOpenFileName(self.MainWindow, "Open a File",
+                                                          filter="Wireshark capture file (*.pcap;*.pcapng);;All Files (*.*)")
+        if file_name:
+            self.sniffer.read_pcap_file(file_path=file_name[0])
+
+    def save_file(self):
+        file_name = QtWidgets.QFileDialog.getSaveFileName(self.MainWindow, "Save into a File",
+                                                          filter="Wireshark capture file (*.pcap;*.pcapng);;All Files (*.*)")
+        if file_name:
+            self.sniffer.write_into_pcap(file_path_name=file_name[0])
 
 
 if __name__ == "__main__":

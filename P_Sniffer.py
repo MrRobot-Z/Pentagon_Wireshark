@@ -26,7 +26,7 @@ class PSniffer(QObject):
 
     @pyqtSlot()
     def start_sniffing(self):
-        spy.sniff(prn=self.process_packet, timeout=self.s_timeout)
+        spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count)
 
     def should_stop(self):
         return self.s_stop
@@ -60,8 +60,8 @@ class PSniffer(QObject):
         sry = self.parse_summary(sniffed_pkt)
         self.all_summary_packets.append(sry)
 
-        print("*"*70 + str(self.packet_id) + "*"*70)
-        print(sry)
+        # print("*"*70 + str(self.packet_id) + "*"*70)
+        # print(sry)
 
         self.packet_id += 1
         self.packet_received.emit(self.all_summary_packets[-1], self.all_detailed_packets[-1], self.all_hex_packets[-1])
@@ -128,6 +128,13 @@ class PSniffer(QObject):
 
     def write_into_pcap(self, file_path_name="test.pcap"):
         spy.wrpcap(file_path_name, self.all_sniffed_packets)
+
+    def refresh(self):
+        self.all_detailed_packets.clear()
+        self.all_summary_packets.clear()
+        self.all_hex_packets.clear()
+        self.all_sniffed_packets.clear()
+        self.packet_id = 0
 
 
 if __name__ == "__main__":

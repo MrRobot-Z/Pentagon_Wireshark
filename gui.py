@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.6
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -20,12 +20,12 @@ class Ui_MainWindow(object):
         self.verticalLayout.setObjectName("verticalLayout")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.start = QtWidgets.QPushButton(self.centralwidget)
-        self.start.setObjectName("start")
-        self.horizontalLayout_2.addWidget(self.start)
-        self.stop = QtWidgets.QPushButton(self.centralwidget)
-        self.stop.setObjectName("stop")
-        self.horizontalLayout_2.addWidget(self.stop)
+        self.start_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.start_btn.setObjectName("start_btn")
+        self.horizontalLayout_2.addWidget(self.start_btn)
+        self.stop_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.stop_btn.setObjectName("stop_btn")
+        self.horizontalLayout_2.addWidget(self.stop_btn)
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
@@ -35,15 +35,15 @@ class Ui_MainWindow(object):
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
         self.lineEdit.setObjectName("lineEdit")
         self.horizontalLayout_4.addWidget(self.lineEdit)
-        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_3.setObjectName("pushButton_3")
-        self.horizontalLayout_4.addWidget(self.pushButton_3)
+        self.filter_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.filter_btn.setObjectName("filter_btn")
+        self.horizontalLayout_4.addWidget(self.filter_btn)
         self.verticalLayout.addLayout(self.horizontalLayout_4)
         self.ListView = QtWidgets.QTreeWidget(self.centralwidget)
         self.ListView.setObjectName("ListView")
         self.verticalLayout.addWidget(self.ListView)
         self.DetailView = QtWidgets.QTreeWidget(self.centralwidget)
-        self.DetailView.setColumnCount(1)
+        self.DetailView.setColumnCount(0)
         self.DetailView.setObjectName("DetailView")
         self.verticalLayout.addWidget(self.DetailView)
         self.HexView = QtWidgets.QTextEdit(self.centralwidget)
@@ -68,22 +68,29 @@ class Ui_MainWindow(object):
         self.actionNew.setObjectName("actionNew")
         self.actionExit = QtWidgets.QAction(MainWindow)
         self.actionExit.setObjectName("actionExit")
+        self.actionOpen = QtWidgets.QAction(MainWindow)
+        self.actionOpen.setObjectName("actionOpen")
+        self.actionSave = QtWidgets.QAction(MainWindow)
+        self.actionSave.setObjectName("actionSave")
         self.menuFile.addAction(self.actionNew)
+        self.menuFile.addSeparator()
+        self.menuFile.addAction(self.actionOpen)
+        self.menuFile.addAction(self.actionSave)
         self.menuFile.addSeparator()
         self.menuFile.addAction(self.actionExit)
         self.menubar.addAction(self.menuFile.menuAction())
 
         self.retranslateUi(MainWindow)
-        #self.stop.clicked.connect(MainWindow.close)
+        self.actionExit.triggered.connect(MainWindow.close)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.start.setText(_translate("MainWindow", "Start"))
-        self.stop.setText(_translate("MainWindow", "Stop"))
+        self.start_btn.setText(_translate("MainWindow", "Start"))
+        self.stop_btn.setText(_translate("MainWindow", "Stop"))
         self.Filter.setText(_translate("MainWindow", "Filter"))
-        self.pushButton_3.setText(_translate("MainWindow", "Go"))
+        self.filter_btn.setText(_translate("MainWindow", "Go"))
         self.ListView.headerItem().setText(0, _translate("MainWindow", "ID"))
         self.ListView.headerItem().setText(1, _translate("MainWindow", "Time"))
         self.ListView.headerItem().setText(2, _translate("MainWindow", "Source"))
@@ -93,5 +100,18 @@ class Ui_MainWindow(object):
         self.ListView.headerItem().setText(6, _translate("MainWindow", "Info."))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
-        self.actionNew.setText(_translate("MainWindow", "Open"))
+        self.actionNew.setText(_translate("MainWindow", " New Session"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))
+        self.actionOpen.setText(_translate("MainWindow", "Open"))
+        self.actionSave.setText(_translate("MainWindow", "Save"))
+
+
+if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec_())
+
