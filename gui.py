@@ -93,5 +93,5 @@ class Ui_MainWindow(object):
         self.ListView.headerItem().setText(6, _translate("MainWindow", "Info."))
         self.menuFile.setTitle(_translate("MainWindow", "File"))
         self.toolBar.setWindowTitle(_translate("MainWindow", "toolBar"))
-        self.actionNew.setText(_translate("MainWindow", "New"))
+        self.actionNew.setText(_translate("MainWindow", "Open"))
         self.actionExit.setText(_translate("MainWindow", "Exit"))

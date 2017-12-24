@@ -2,7 +2,7 @@ import Wireshark_utils as WsU
 import re
 import scapy.all as spy
 import datetime
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, pyqtSlot
 
 
 print("Scapy is Imported")
@@ -24,6 +24,7 @@ class PSniffer(QObject):
         self.s_stop = False
         self.start_time = datetime.datetime.today()
 
+    @pyqtSlot()
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout)
 
@@ -65,11 +66,10 @@ class PSniffer(QObject):
         self.packet_id += 1
         self.packet_received.emit(self.all_summary_packets[-1], self.all_detailed_packets[-1], self.all_hex_packets[-1])
 
+    @pyqtSlot()
     def read_pcap_file(self, file_path="example_network_traffic.pcap"):
         packets = spy.rdpcap(file_path)
-        for i, one in enumerate(packets):
-            if i >= 7:
-                print(one.summary())
+        for one in packets:
             self.process_packet(one)
 
     def analyze_layer(self, layer_list):
