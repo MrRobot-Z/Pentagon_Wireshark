@@ -38,6 +38,7 @@ class GUI(object):
         self.ui.actionOpen.triggered.connect(self.select_file)
         self.ui.actionSave.triggered.connect(self.save_file)
         self.ui.actionNew.triggered.connect(self.refresh_session)
+        self.ui.actionToggle_FullScreen.triggered.connect(self.toggle_full_screen)
 
         self.packets_details = []
         self.packets_summary = []
@@ -151,6 +152,12 @@ class GUI(object):
         self.packets_hex.clear()
 
         self.sniffer.refresh()
+
+    def toggle_full_screen(self):
+        if self.MainWindow.isFullScreen():
+            self.MainWindow.showNormal()
+        else:
+            self.MainWindow.showFullScreen()
 
 
 if __name__ == "__main__":

@@ -27,8 +27,11 @@ class PSniffer(QObject):
     @pyqtSlot()
     def start_sniffing(self):
         self.s_stop = False
-        spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count, stop_callback=self.should_stop,
-                  filter=self.filter)
+        try:
+            spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count, stop_callback=self.should_stop,
+                      filter=self.filter)
+        except NameError:
+            pass
         print("Done Sniffing")
 
     def should_stop(self):
