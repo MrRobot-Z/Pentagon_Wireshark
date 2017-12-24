@@ -1,9 +1,10 @@
 import Wireshark_utils as WsU
+import re
 import scapy.all as spy
 import datetime
 from PyQt5.QtCore import QObject, pyqtSignal
 
-# from threading import Timer
+
 print("Scapy is Imported")
 
 
@@ -17,10 +18,11 @@ class PSniffer(QObject):
         self.all_summary_packets = []
         self.all_hex_packets = []
         self.packet_id = 0
-        self.s_timeout = 3
+        self.s_timeout = 30
         self.s_count = 0
         self.filter = None
         self.s_stop = False
+        self.start_time = datetime.datetime.today()
 
     def start_sniffing(self):
         spy.sniff(prn=self.process_packet, timeout=self.s_timeout)
@@ -32,21 +34,21 @@ class PSniffer(QObject):
         self.s_stop = True
 
     def process_packet(self, sniffed_pkt):
-        print("dafhsgbjdfb")
-        self.all_sniffed_packets.append(sniffed_pkt)
-        self.parse_summary(sniffed_pkt)
 
-        layers_lst = []
-        for x in range(5):
-            try:
-                layers_lst.append(WsU.get_show_data(sniffed_pkt[x]))
-            except IndexError:
-                break
-        for x in range(len(layers_lst) - 2, -1, -1):
-            layers_lst[x] = layers_lst[x][:layers_lst[x].index(layers_lst[x + 1][0])]
+        try:
+            pkt_lines = WsU.get_show_data(sniffed_pkt)
+        except AttributeError:
+            return
+
+        self.all_sniffed_packets.append(sniffed_pkt)
+
+        protocol_lines = [i for i, word in enumerate(pkt_lines) if re.search(r'###\[ .* \]###', word)]
         pkt_details = []
-        for layer in layers_lst:
-            pkt_details.append(self.analyze_layer(layer))
+        for i in range(len(protocol_lines) - 1):
+            single_layer = pkt_lines[protocol_lines[i]:protocol_lines[i+1]]
+            pkt_details.append(self.analyze_layer(single_layer))
+        single_layer = pkt_lines[protocol_lines[-1]:]
+        pkt_details.append(self.analyze_layer(single_layer))
 
         self.all_detailed_packets.append(pkt_details)
 
@@ -54,20 +56,21 @@ class PSniffer(QObject):
         hx = "\n".join(hx)
         self.all_hex_packets.append(hx)
 
+        sry = self.parse_summary(sniffed_pkt)
+        self.all_summary_packets.append(sry)
+
         print("*"*70 + str(self.packet_id) + "*"*70)
-        print(self.all_summary_packets[-1])
+        print(sry)
 
         self.packet_id += 1
-        print("ana 2t3t l packet aho")
         self.packet_received.emit(self.all_summary_packets[-1], self.all_detailed_packets[-1], self.all_hex_packets[-1])
-        print("ana 2t3t l packet aho")
 
     def read_pcap_file(self, file_path="example_network_traffic.pcap"):
         packets = spy.rdpcap(file_path)
-        print("Ana b read aho")
-        for one in packets:
+        for i, one in enumerate(packets):
+            if i >= 7:
+                print(one.summary())
             self.process_packet(one)
-        print("ana 5lst read aho")
 
     def analyze_layer(self, layer_list):
         if layer_list[0] == "###[ Raw ]###":
@@ -82,7 +85,8 @@ class PSniffer(QObject):
             layer_list[i] = (s[0], s[1])
         return layer_list
 
-    def parse_http(self, raw_tcp):
+    @staticmethod
+    def parse_http(raw_tcp):
         fields = raw_tcp[1].split("=", 1)[1].split("\\r\\n\\r\\n", 1)
         load = ""
         if len(fields) == 2:
@@ -90,37 +94,47 @@ class PSniffer(QObject):
         http = fields[0].split("\\r\\n")
         out = [("HTTP", x) for x in http]
         out.append(("Load", load))
-        out.insert(0, "###[ HTTP ]###")
-        self.all_summary_packets[self.packet_id]["Protocol"] = "HTTP"
+        out = ["###[ HTTP ]###"] + out
         return out
 
     def parse_summary(self, pkt):
-        summery_dict = {}
-        t = datetime.datetime.now().strftime("%H:%M:%S.%f")
-        summery_dict["ID"] = self.packet_id
-        summery_dict["Time"] = t
-        summery_dict["Length"] = len(pkt)
+        summary_dict = {}
+        t = (datetime.datetime.now()).strftime("%H:%M:%S.%f")
+        summary_dict["ID"] = self.packet_id
+        summary_dict["Time"] = t
+        summary_dict["Length"] = len(pkt)
         s = pkt.summary()
-        print(s)
-        summery_dict["Info"] = s
-        s = s.split()
-        index = s.index(">")
-        summery_dict["Source"] = s[index - 1]
-        summery_dict["Destination"] = s[index - 1]
-        summery_dict["Protocol"] = s[index - 2]
-        self.all_summary_packets.append(summery_dict)
+        summary_dict["Info"] = s
+        source = ""
+        destination = ""
+
+        details = self.all_detailed_packets[self.packet_id]
+        for layer in details:
+            if layer[0] == "###[ IP ]###":
+                d = dict(layer[1:])
+                source = d["src"]
+                destination = d["dst"]
+                break
+        if len(details) >= 4:
+            protocol = details[3][0].replace("###[ ", "").replace(" ]###", "")
+        else:
+            protocol = details[-2][0].replace("###[ ", "").replace(" ]###", "")
+
+        summary_dict["Source"] = source
+        summary_dict["Destination"] = destination
+        summary_dict["Protocol"] = protocol.strip()
+
+        return summary_dict
 
     def write_into_pcap(self, file_path_name="test.pcap"):
         spy.wrpcap(file_path_name, self.all_sniffed_packets)
 
 
-'''if __name__ == "__main__":
+if __name__ == "__main__":
     pws = PSniffer()
-    # t = Timer(10, pws.stop_sniffing)
-    # t.start()
     try:
-        pws.read_pcap_file()
-        # pws.start_sniffing()
-        pws.write_into_pcap()
+        # pws.read_pcap_file()
+        pws.start_sniffing()
+        # pws.write_into_pcap()
     except ValueError:
-        print("Hello from exception")'''
+        pass
