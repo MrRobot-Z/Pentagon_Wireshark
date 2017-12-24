@@ -1,6 +1,7 @@
 import sys
 from gui import *
 from P_Sniffer import *
+from threading import Thread
 
 
 class GUI(object):
@@ -36,6 +37,7 @@ class GUI(object):
         # self.ui.actionExit.triggered.connect(self.MainWindow.close)
         self.ui.actionOpen.triggered.connect(self.select_file)
         self.ui.actionSave.triggered.connect(self.save_file)
+        self.ui.actionNew.triggered.connect(self.refresh_session)
 
         self.packets_details = []
         self.packets_summary = []
@@ -43,10 +45,13 @@ class GUI(object):
 
         self.sniffer = PSniffer()
         self.sniffer.packet_received.connect(self.view_packet)
-        self.ui.start_btn.clicked.connect(self.sniffer.start_sniffing)
+        self.ui.start_btn.clicked.connect(self.start_sniff)
+        self.ui.stop_btn.clicked.connect(self.stop_sniff)
         self.ui.filter_btn.clicked.connect(self.filter)
         self.ui.ListView.itemClicked.connect(self.view_packet_details)
         self.MainWindow.show()
+        self.ui.stop_btn.setEnabled(False)
+        self.sniff_thread = None
 
     def view_packet(self, packet_summary, packet_detail, packet_hex):
         '''if packet_summary['ID'] == 0:
@@ -106,25 +111,46 @@ class GUI(object):
             return header
 
     def start_sniff(self):
-        self.sniffer.read_pcap_file(file_path="example_network_traffic.pcap")
+        self.sniff_thread = Thread(target=self.sniffer.start_sniffing)
+        self.sniff_thread.start()
+        self.ui.start_btn.setEnabled(False)
+        self.ui.stop_btn.setEnabled(True)
+        self.ui.filter_btn.setEnabled(False)
+
+    def stop_sniff(self):
+        self.sniffer.stop_sniffing()
+        self.ui.start_btn.setEnabled(True)
+        self.ui.stop_btn.setEnabled(False)
+        self.ui.filter_btn.setEnabled(True)
 
     def receive_packets(self, sniffed_packets, detailed_packets, summary_packets):
         self.view_packet(sniffed_packets[1])
 
     def filter(self):
-        self.sniffer.filter = self.ui.Filter.text()
+        self.sniffer.filter = self.ui.lineEdit.text()
 
     def select_file(self):
         file_name = QtWidgets.QFileDialog.getOpenFileName(self.MainWindow, "Open a File",
                                                           filter="Wireshark capture file (*.pcap;*.pcapng);;All Files (*.*)")
-        if file_name:
+        if file_name[0]:
             self.sniffer.read_pcap_file(file_path=file_name[0])
 
     def save_file(self):
         file_name = QtWidgets.QFileDialog.getSaveFileName(self.MainWindow, "Save into a File",
                                                           filter="Wireshark capture file (*.pcap;*.pcapng);;All Files (*.*)")
-        if file_name:
+        if file_name[0]:
             self.sniffer.write_into_pcap(file_path_name=file_name[0])
+
+    def refresh_session(self):
+        self.ui.DetailView.clear()
+        self.ui.ListView.clear()
+        self.ui.HexView.clear()
+
+        self.packets_details.clear()
+        self.packets_summary.clear()
+        self.packets_hex.clear()
+
+        self.sniffer.refresh()
 
 
 if __name__ == "__main__":

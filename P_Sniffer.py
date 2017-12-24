@@ -18,7 +18,7 @@ class PSniffer(QObject):
         self.all_summary_packets = []
         self.all_hex_packets = []
         self.packet_id = 0
-        self.s_timeout = 30
+        self.s_timeout = None
         self.s_count = 0
         self.filter = None
         self.s_stop = False
@@ -26,7 +26,10 @@ class PSniffer(QObject):
 
     @pyqtSlot()
     def start_sniffing(self):
-        spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count)
+        self.s_stop = False
+        spy.sniff(prn=self.process_packet, timeout=self.s_timeout, count=self.s_count, stop_callback=self.should_stop,
+                  filter=self.filter)
+        print("Done Sniffing")
 
     def should_stop(self):
         return self.s_stop
@@ -35,7 +38,6 @@ class PSniffer(QObject):
         self.s_stop = True
 
     def process_packet(self, sniffed_pkt):
-
         try:
             pkt_lines = WsU.get_show_data(sniffed_pkt)
         except AttributeError:
@@ -103,21 +105,29 @@ class PSniffer(QObject):
         summary_dict["ID"] = self.packet_id
         summary_dict["Time"] = t
         summary_dict["Length"] = len(pkt)
-        summary_dict["Info"] = pkt.summary()
+        s = pkt.summary()
+        summary_dict["Info"] = s
         source = ""
         destination = ""
 
         details = self.all_detailed_packets[self.packet_id]
-        for layer in details:
+        raw_index = 0
+        for i, layer in enumerate(details):
             if layer[0] == "###[ IP ]###":
                 d = dict(layer[1:])
                 source = d["src"]
                 destination = d["dst"]
-                break
-        if len(details) >= 4:
+            elif layer[0] == "###[ Raw ]###":
+                raw_index = i
+
+        if re.search(r'http', s):
+            protocol = "HTTP"
+        elif raw_index:
+            protocol = details[raw_index - 1][0].replace("###[ ", "").replace(" ]###", "")
+        elif len(details) >= 4:
             protocol = details[3][0].replace("###[ ", "").replace(" ]###", "")
         else:
-            protocol = details[-2][0].replace("###[ ", "").replace(" ]###", "")
+            protocol = details[-1][0].replace("###[ ", "").replace(" ]###", "")
 
         summary_dict["Source"] = source
         summary_dict["Destination"] = destination
